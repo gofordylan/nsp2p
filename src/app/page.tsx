@@ -2,6 +2,7 @@ import { auth, signIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getZecPrice } from "@/lib/price";
 import { mockPrice } from "@/lib/mock-data";
+import { UserMenu } from "./components/user-menu";
 
 const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === "true";
 
@@ -43,19 +44,7 @@ export default async function Home({
           NSP2P
         </span>
         {session?.user ? (
-          <a href="/offers">
-            {session.user.image ? (
-              <img
-                src={session.user.image}
-                alt=""
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            ) : (
-              <span className="flex w-8 h-8 items-center justify-center rounded-full bg-[#EEECEA] text-[13px] font-semibold text-[#555]">
-                {(session.user.name || "?")[0].toUpperCase()}
-              </span>
-            )}
-          </a>
+          <UserMenu image={session.user.image} name={session.user.name} />
         ) : (
           <form action={signInAction}>
             <button
