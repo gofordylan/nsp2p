@@ -5,9 +5,11 @@ import { useState, useRef, useEffect } from "react";
 export function UserMenu({
   image,
   name,
+  signOutAction,
 }: {
   image: string | null | undefined;
   name: string | null | undefined;
+  signOutAction: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -24,10 +26,7 @@ export function UserMenu({
 
   return (
     <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="cursor-pointer"
-      >
+      <button onClick={() => setOpen(!open)} className="cursor-pointer">
         {image ? (
           <img
             src={image}
@@ -49,7 +48,7 @@ export function UserMenu({
           >
             My Offers
           </a>
-          <form action="/api/auth/signout" method="post">
+          <form action={signOutAction}>
             <button
               type="submit"
               className="w-full text-left px-4 py-3 text-[13px] font-medium text-[#E53935] hover:bg-[#EEECEA] transition-colors cursor-pointer border-t border-[#E8E5E0]"

@@ -1,4 +1,4 @@
-import { auth, signIn } from "@/lib/auth";
+import { auth, signIn, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getZecPrice } from "@/lib/price";
 import { mockPrice } from "@/lib/mock-data";
@@ -12,6 +12,11 @@ async function signInAction(formData: FormData) {
   "use server";
   const callbackUrl = formData.get("callbackUrl") as string || "/";
   await signIn("network-school", { redirectTo: callbackUrl });
+}
+
+async function signOutAction() {
+  "use server";
+  await signOut({ redirectTo: "/" });
 }
 
 export default async function Home({
@@ -44,7 +49,7 @@ export default async function Home({
           NSP2P
         </span>
         {session?.user ? (
-          <UserMenu image={session.user.image} name={session.user.name} />
+          <UserMenu image={session.user.image} name={session.user.name} signOutAction={signOutAction} />
         ) : (
           <form action={signInAction}>
             <button
@@ -63,8 +68,8 @@ export default async function Home({
 
       {/* Hero */}
       <main className="flex flex-1 flex-col items-center justify-center px-6 -mt-8">
-        <h1 className="text-[32px] font-extrabold leading-[36px] tracking-[-0.03em] text-[#1A1A1A] text-center max-w-[320px]">
-          Buy &amp; sell ZEC at Network School.
+        <h1 className="text-[36px] font-extrabold leading-[40px] tracking-[-0.03em] text-[#1A1A1A] text-center max-w-[340px]">
+          Buy &amp; sell ZEC at Network School
         </h1>
         <p className="mt-3 text-[14px] text-[#999999] text-center leading-[22px]">
           Peer-to-peer trades with people you trust.
