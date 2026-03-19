@@ -31,11 +31,11 @@ export default async function Home({
 
   const signInBrowse = isDevMode
     ? "/offers"
-    : `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/offers")}`;
+    : `/api/auth/signin?callbackUrl=${encodeURIComponent("/offers")}`;
   const signInCreate = isDevMode
     ? "/create"
-    : `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/create")}`;
-  const signInHref = isDevMode ? "#" : "/api/auth/signin/network-school";
+    : `/api/auth/signin?callbackUrl=${encodeURIComponent("/create")}`;
+  const signInHref = isDevMode ? "#" : "/api/auth/signin";
 
   const browseHref = session?.user ? "/offers" : signInBrowse;
   const createHref = session?.user ? "/create" : signInCreate;

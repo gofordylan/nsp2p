@@ -12,7 +12,7 @@ export default async function CreateLayout({
     const session = await auth();
     if (!session?.user) {
       redirect(
-        `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/create")}`
+        `/api/auth/signin?callbackUrl=${encodeURIComponent("/create")}`
       );
     }
   }
