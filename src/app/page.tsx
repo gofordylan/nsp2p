@@ -15,13 +15,11 @@ export default async function Home({
   const params = await searchParams;
   const destination = params.dest;
 
-  // If user is signed in and trying to go somewhere, redirect them
   const session = await auth();
   if (session?.user && destination) {
     redirect(destination);
   }
 
-  // Fetch live price (fall back to mock)
   let price = mockPrice;
   try {
     if (!isDevMode) {
@@ -37,84 +35,105 @@ export default async function Home({
   const signInCreate = isDevMode
     ? "/create"
     : `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/create")}`;
-  const signInHref = isDevMode
-    ? "#"
-    : "/api/auth/signin/network-school";
+  const signInHref = isDevMode ? "#" : "/api/auth/signin/network-school";
 
-  // If already signed in, link directly
   const browseHref = session?.user ? "/offers" : signInBrowse;
   const createHref = session?.user ? "/create" : signInCreate;
 
   return (
-    <div className="flex flex-col min-h-dvh px-6">
+    <div className="flex flex-col min-h-dvh">
       {/* Nav */}
-      <nav className="flex items-center justify-between py-4">
-        <span className="text-lg font-bold tracking-tight">nsp2p</span>
+      <nav className="flex items-center justify-between px-6 py-4">
+        <span className="text-[18px] font-bold tracking-[-0.02em] text-[#1A1A1A]">
+          NSP2P
+        </span>
         {session?.user ? (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[#999999]">
-              {session.user.name}
-            </span>
-            <a
-              href="/offers"
-              className="rounded-full bg-[#EEECEA] px-4 py-1.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#E0DDD7] transition-colors"
+          <a
+            href="/offers"
+            className="flex items-center gap-2 rounded-full bg-[#EEECEA] px-4 py-2 text-[13px] font-medium text-[#1A1A1A] hover:bg-[#E0DDD7] transition-colors"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              Enter
-            </a>
-          </div>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            {session.user.name}
+          </a>
         ) : (
           <a
             href={signInHref}
-            className="rounded-full border border-[#E8E5E0] px-4 py-1.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
+            className="flex items-center gap-2 rounded-full bg-[#EEECEA] px-4 py-2 text-[13px] font-medium text-[#1A1A1A] hover:bg-[#E0DDD7] transition-colors"
           >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
             Sign in
           </a>
         )}
       </nav>
 
-      {/* Hero */}
-      <main className="flex flex-1 flex-col items-center justify-center text-center -mt-12">
-        <h1 className="text-[28px] font-semibold leading-tight tracking-tight max-w-[300px]">
+      {/* Hero — centered */}
+      <main className="flex flex-1 flex-col items-center justify-center px-6 -mt-8">
+        <h1 className="text-[32px] font-extrabold leading-[36px] tracking-[-0.03em] text-[#1A1A1A] text-center max-w-[320px]">
           Buy &amp; sell ZEC at Network School.
         </h1>
-        <p className="mt-3 text-sm text-[#999999] max-w-[280px] leading-relaxed">
-          Peer-to-peer Zcash trading for the NS community. Fast, simple,
-          trust-based.
+        <p className="mt-3 text-[14px] text-[#999999] text-center leading-[22px]">
+          Peer-to-peer trades with people you trust.
         </p>
 
-        {/* Steps */}
-        <div className="mt-8 flex items-center gap-5">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1A1A1A] text-[11px] font-semibold text-white">
+        {/* Steps — full width rows with dividers */}
+        <div className="mt-10 w-full max-w-[342px] flex flex-col">
+          <div className="flex items-center gap-[14px] py-[14px] border-t border-[#E8E5E0]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1A1A1A] text-[12px] font-bold text-white flex-shrink-0">
               1
             </span>
-            <span className="text-sm text-[#1A1A1A]">Browse</span>
+            <span className="text-[14px] font-medium text-[#1A1A1A]">
+              Browse current offers or create your own
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1A1A1A] text-[11px] font-semibold text-white">
+          <div className="flex items-center gap-[14px] py-[14px] border-t border-[#E8E5E0]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1A1A1A] text-[12px] font-bold text-white flex-shrink-0">
               2
             </span>
-            <span className="text-sm text-[#1A1A1A]">Trade</span>
+            <span className="text-[14px] font-medium text-[#1A1A1A]">
+              Contact on Discord to coordinate
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1A1A1A] text-[11px] font-semibold text-white">
+          <div className="flex items-center gap-[14px] py-[14px] border-t border-b border-[#E8E5E0]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1A1A1A] text-[12px] font-bold text-white flex-shrink-0">
               3
             </span>
-            <span className="text-sm text-[#1A1A1A]">Settle</span>
+            <span className="text-[14px] font-medium text-[#1A1A1A]">
+              Meet-up and exchange!
+            </span>
           </div>
         </div>
 
-        {/* CTAs */}
-        <div className="mt-8 flex w-full max-w-[280px] flex-col gap-3">
+        {/* CTAs — side by side */}
+        <div className="mt-8 flex w-full max-w-[342px] gap-[10px]">
           <a
             href={browseHref}
-            className="flex h-12 items-center justify-center rounded-full bg-[#1A1A1A] text-sm font-medium text-white hover:bg-[#333333] transition-colors"
+            className="flex flex-1 h-[49px] items-center justify-center rounded-[10px] bg-[#1A1A1A] text-[15px] font-semibold text-white hover:bg-[#333333] transition-colors"
           >
             Browse Offers
           </a>
           <a
             href={createHref}
-            className="flex h-12 items-center justify-center rounded-full border border-[#E8E5E0] text-sm font-medium text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
+            className="flex flex-1 h-[49px] items-center justify-center rounded-[10px] border-[1.5px] border-[#D0CCC6] text-[15px] font-semibold text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
           >
             Create Offer
           </a>
@@ -122,15 +141,19 @@ export default async function Home({
       </main>
 
       {/* Footer */}
-      <footer className="flex flex-col items-center gap-2 pb-8 pt-6">
-        <p className="text-sm font-medium text-[#1A1A1A]">
-          ZEC{" "}
-          <span className="text-[#34A853]">${price.usd.toFixed(2)}</span>
-        </p>
-        <p className="text-xs text-[#999999]">
+      <footer className="flex items-center justify-between px-6 pb-8 pt-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#D4A017] text-[10px] font-bold text-white">
+            Z
+          </span>
+          <span className="text-[14px] font-semibold text-[#1A1A1A]">
+            ${price.usd.toFixed(2)}
+          </span>
+        </div>
+        <span className="text-[12px] text-[#999999]">
           Need a wallet?{" "}
           <a
-            href="https://zecwallet.co"
+            href="https://zodl.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="underline decoration-[#E8E5E0] underline-offset-2 hover:text-[#1A1A1A] transition-colors"
@@ -138,7 +161,7 @@ export default async function Home({
             Download Zodl
           </a>
           .
-        </p>
+        </span>
       </footer>
     </div>
   );
