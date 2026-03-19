@@ -11,9 +11,7 @@ export default async function OffersLayout({
   if (!isDevMode) {
     const session = await auth();
     if (!session?.user) {
-      redirect(
-        `/api/auth/signin?callbackUrl=${encodeURIComponent("/offers")}`
-      );
+      redirect("/?dest=/offers");
     }
   }
   return <>{children}</>;

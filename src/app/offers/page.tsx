@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { mockOffers, mockCurrentUser, mockPrice } from "@/lib/mock-data";
 import type { Offer } from "@/types";
@@ -17,6 +17,15 @@ const PAYMENT_METHODS = [
 ] as const;
 
 export default function OffersPage() {
+  const [zecPrice, setZecPrice] = useState(38.42);
+
+  useEffect(() => {
+    fetch("/api/price")
+      .then((r) => r.json())
+      .then((data) => { if (data.usd) setZecPrice(data.usd); })
+      .catch(() => {});
+  }, []);
+
   const [filter, setFilter] = useState<OfferFilter>("sell");
   const [paymentMethod, setPaymentMethod] = useState<string>("All methods");
   const [showMethodDropdown, setShowMethodDropdown] = useState(false);
@@ -243,7 +252,7 @@ export default function OffersPage() {
         <p className="text-xs text-[#999999]">
           ZEC{" "}
           <span className="font-medium text-[#34A853]">
-            ${mockPrice.usd.toFixed(2)}
+            ${zecPrice.toFixed(2)}
           </span>
         </p>
       </div>

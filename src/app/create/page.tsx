@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { mockPrice, mockCurrentUser } from "@/lib/mock-data";
 
@@ -341,11 +341,13 @@ function StepBuyOrSell({
 function StepSetRate({
   premium,
   onPremiumChange,
+  marketPrice,
 }: {
   premium: number;
   onPremiumChange: (p: number) => void;
+  marketPrice: number;
 }) {
-  const effectivePrice = mockPrice.usd * (1 + premium / 100);
+  const effectivePrice = marketPrice * (1 + premium / 100);
   const sign = premium >= 0 ? "+" : "";
   const label = premium > 0 ? "PREMIUM" : premium < 0 ? "DISCOUNT" : "AT MARKET";
 
@@ -354,41 +356,35 @@ function StepSetRate({
       <h1 className="text-2xl font-bold text-[#1A1A1A]">Set Your Rate</h1>
 
       <div className="flex flex-col items-center gap-6 w-full max-w-sm">
-        {/* Large percentage display */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-xs font-semibold tracking-widest text-[#999999] uppercase">
-            {label}
+        <span className="text-xs font-semibold tracking-widest text-[#999999] uppercase">
+          {label}
+        </span>
+
+        {/* Fixed-position +/- with centered number */}
+        <div className="flex items-center justify-center w-full">
+          <button
+            onClick={() =>
+              onPremiumChange(Math.round((premium - 0.5) * 10) / 10)
+            }
+            className="w-13 h-13 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95 flex-shrink-0"
+            aria-label="Decrease premium"
+          >
+            <MinusIcon className="w-5 h-5 text-[#1A1A1A]" />
+          </button>
+
+          <span className="text-6xl font-bold text-[#1A1A1A] tabular-nums w-[180px] text-center flex-shrink-0">
+            {sign}{premium}%
           </span>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() =>
-                onPremiumChange(
-                  Math.round((premium - 0.5) * 10) / 10
-                )
-              }
-              className="w-12 h-12 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95"
-              aria-label="Decrease premium"
-            >
-              <MinusIcon className="w-5 h-5 text-[#1A1A1A]" />
-            </button>
 
-            <span className="text-6xl font-bold text-[#1A1A1A] tabular-nums min-w-[160px] text-center">
-              {sign}
-              {premium}%
-            </span>
-
-            <button
-              onClick={() =>
-                onPremiumChange(
-                  Math.round((premium + 0.5) * 10) / 10
-                )
-              }
-              className="w-12 h-12 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95"
-              aria-label="Increase premium"
-            >
-              <PlusIcon className="w-5 h-5 text-[#1A1A1A]" />
-            </button>
-          </div>
+          <button
+            onClick={() =>
+              onPremiumChange(Math.round((premium + 0.5) * 10) / 10)
+            }
+            className="w-13 h-13 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95 flex-shrink-0"
+            aria-label="Increase premium"
+          >
+            <PlusIcon className="w-5 h-5 text-[#1A1A1A]" />
+          </button>
         </div>
 
         {/* Effective price */}
@@ -397,11 +393,10 @@ function StepSetRate({
             ${effectivePrice.toFixed(2)} per ZEC
           </p>
           <p className="text-sm text-[#999999]">
-            Based on market price ${mockPrice.usd.toFixed(2)}
+            Based on market price ${marketPrice.toFixed(2)}
           </p>
         </div>
 
-        {/* Helper text */}
         <p className="text-xs text-[#BBBBBB]">Adjusts by 0.5% per tap</p>
       </div>
     </div>
@@ -414,16 +409,18 @@ function StepZecRange({
   minZec,
   maxZec,
   premium,
+  marketPrice,
   onMinChange,
   onMaxChange,
 }: {
   minZec: string;
   maxZec: string;
   premium: number;
+  marketPrice: number;
   onMinChange: (v: string) => void;
   onMaxChange: (v: string) => void;
 }) {
-  const effectivePrice = mockPrice.usd * (1 + premium / 100);
+  const effectivePrice = marketPrice * (1 + premium / 100);
 
   const minUsd = minZec ? (parseFloat(minZec) * effectivePrice).toFixed(2) : "0.00";
   const maxUsd = maxZec ? (parseFloat(maxZec) * effectivePrice).toFixed(2) : "0.00";
@@ -551,8 +548,8 @@ function StepPaymentMethods({
 
 // ─── Step 5: Review & Publish ───────────────────────────────────────────────────
 
-function OfferPreviewCard({ offer }: { offer: OfferState }) {
-  const effectivePrice = mockPrice.usd * (1 + offer.premium / 100);
+function OfferPreviewCard({ offer, marketPrice }: { offer: OfferState; marketPrice: number }) {
+  const effectivePrice = marketPrice * (1 + offer.premium / 100);
   const sign = offer.premium >= 0 ? "+" : "";
   const minZec = parseFloat(offer.minZec) || 0;
   const maxZec = parseFloat(offer.maxZec) || 0;
@@ -633,8 +630,8 @@ function OfferPreviewCard({ offer }: { offer: OfferState }) {
   );
 }
 
-function StepReview({ offer }: { offer: OfferState }) {
-  const effectivePrice = mockPrice.usd * (1 + offer.premium / 100);
+function StepReview({ offer, marketPrice }: { offer: OfferState; marketPrice: number }) {
+  const effectivePrice = marketPrice * (1 + offer.premium / 100);
   const sign = offer.premium >= 0 ? "+" : "";
   const minZec = parseFloat(offer.minZec) || 0;
   const maxZec = parseFloat(offer.maxZec) || 0;
@@ -664,7 +661,7 @@ function StepReview({ offer }: { offer: OfferState }) {
 
       <div className="flex flex-col gap-6 w-full max-w-sm">
         {/* Preview card */}
-        <OfferPreviewCard offer={offer} />
+        <OfferPreviewCard offer={offer} marketPrice={marketPrice} />
 
         {/* Summary table */}
         <div className="rounded-xl border border-[#E8E5E0] bg-white divide-y divide-[#E8E5E0] overflow-hidden">
@@ -687,6 +684,7 @@ function StepReview({ offer }: { offer: OfferState }) {
 export default function CreateOfferPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [marketPrice, setMarketPrice] = useState(38.42);
   const [offer, setOffer] = useState<OfferState>({
     type: "sell",
     premium: 2,
@@ -695,9 +693,16 @@ export default function CreateOfferPage() {
     paymentMethods: [],
   });
 
+  useEffect(() => {
+    fetch("/api/price")
+      .then((r) => r.json())
+      .then((data) => { if (data.usd) setMarketPrice(data.usd); })
+      .catch(() => {});
+  }, []);
+
   const effectivePrice = useMemo(
-    () => mockPrice.usd * (1 + offer.premium / 100),
-    [offer.premium]
+    () => marketPrice * (1 + offer.premium / 100),
+    [offer.premium, marketPrice]
   );
 
   const handleBack = useCallback(() => {
@@ -782,15 +787,8 @@ export default function CreateOfferPage() {
           <ProgressBar step={step} />
         </div>
 
-        {/* Context badge (shown from step 2 onward) */}
-        {step >= 2 && (
-          <div className="mt-4">
-            <ContextBadge offer={offer} step={step} />
-          </div>
-        )}
-
         {/* Step content */}
-        <div className="flex flex-col flex-1 mt-8">
+        <div className="flex flex-col flex-1 mt-6">
           {step === 1 && (
             <StepBuyOrSell
               type={offer.type}
@@ -800,6 +798,7 @@ export default function CreateOfferPage() {
           {step === 2 && (
             <StepSetRate
               premium={offer.premium}
+              marketPrice={marketPrice}
               onPremiumChange={(p) =>
                 setOffer((prev) => ({ ...prev, premium: p }))
               }
@@ -810,6 +809,7 @@ export default function CreateOfferPage() {
               minZec={offer.minZec}
               maxZec={offer.maxZec}
               premium={offer.premium}
+              marketPrice={marketPrice}
               onMinChange={(v) =>
                 setOffer((prev) => ({ ...prev, minZec: v }))
               }
@@ -824,7 +824,7 @@ export default function CreateOfferPage() {
               onToggle={handleTogglePayment}
             />
           )}
-          {step === 5 && <StepReview offer={offer} />}
+          {step === 5 && <StepReview offer={offer} marketPrice={marketPrice} />}
         </div>
 
         {/* Bottom CTA */}

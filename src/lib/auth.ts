@@ -3,7 +3,6 @@ import { getServiceSupabase } from "./supabase";
 
 function parseDiscordIdFromAvatarUrl(url: string | null): string | null {
   if (!url) return null;
-  // Avatar URL format: https://cdn.discordapp.com/avatars/{discord_id}/{hash}.png
   const match = url.match(/\/avatars\/(\d+)\//);
   return match ? match[1] : null;
 }
@@ -13,31 +12,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     {
       id: "network-school",
       name: "Network School",
-      type: "oauth",
-      authorization: {
-        url: "https://api.nsauth.org/oauth/authorize",
-        params: {
-          scope: "openid profile email",
-          response_type: "code",
-        },
-      },
-      token: "https://api.nsauth.org/oauth/token",
-      userinfo: "https://api.nsauth.org/oauth/userinfo",
+      type: "oidc",
+      issuer: "https://api.nsauth.org",
       clientId: process.env.NS_CLIENT_ID,
       clientSecret: process.env.NS_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: "openid profile",
+        },
+      },
       checks: ["pkce"],
+      token: {
+        url: "https://api.nsauth.org/oauth/token",
+        conform: async (response: Response) => {
+          return response;
+        },
+      },
+      client: {
+        token_endpoint_auth_method: "client_secret_post",
+      },
       profile(profile) {
         return {
           id: profile.sub,
-          name: profile.name,
+          name: profile.name || profile.discord_username,
           email: profile.email,
           image: profile.picture,
         };
       },
     },
   ],
+  pages: {
+    signIn: "/",
+  },
   callbacks: {
-    async signIn({ user, profile }) {
+    async signIn({ profile }) {
       if (!profile) return false;
 
       const db = getServiceSupabase();
@@ -45,7 +53,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         profile.picture as string | null
       );
 
-      // Upsert user in our database
       await db.from("users").upsert(
         {
           ns_sub: profile.sub as string,
@@ -53,9 +60,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             profile.username ||
             profile.name) as string,
           discord_id: discordId,
-          display_name: profile.name as string,
+          display_name: (profile.name || profile.discord_username) as string,
           avatar_url: profile.picture as string | null,
-          email: profile.email as string | null,
+          email: (profile.email as string) || null,
         },
         { onConflict: "ns_sub" }
       );

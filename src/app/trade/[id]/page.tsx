@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { mockOffers, mockPrice } from "@/lib/mock-data";
 import type { Offer, ZecPrice } from "@/types";
@@ -23,9 +23,9 @@ function getPaymentServices(methods: string[]): string[] {
   return methods.filter((m) => !isCurrency(m));
 }
 
-function getBasePrice(currency: CurrencyCode): number {
+function getBasePrice(currency: CurrencyCode, prices: ZecPrice): number {
   const key = currency.toLowerCase() as keyof ZecPrice;
-  return mockPrice[key] ?? mockPrice.usd;
+  return prices[key] ?? prices.usd;
 }
 
 function getCurrencySymbol(currency: CurrencyCode): string {
@@ -116,18 +116,20 @@ function StepSelectPayment({
   selectedMethod,
   onSelect,
   onNext,
+  prices,
 }: {
   offer: Offer;
   selectedMethod: string | null;
   onSelect: (method: string) => void;
   onNext: () => void;
+  prices: ZecPrice;
 }) {
   const user = offer.user;
   const displayName = user?.display_name ?? "Unknown";
   const initial = displayName.charAt(0).toUpperCase();
   const currency = getCurrencyFromMethods(offer.payment_methods);
   const services = getPaymentServices(offer.payment_methods);
-  const basePrice = getBasePrice(currency);
+  const basePrice = getBasePrice(currency, prices);
   const effectiveRate = basePrice * (1 + offer.premium_discount / 100);
   const currencySymbol = getCurrencySymbol(currency);
 
@@ -252,17 +254,19 @@ function StepEnterAmount({
   zecAmount,
   onZecChange,
   onNext,
+  prices,
 }: {
   offer: Offer;
   selectedMethod: string;
   zecAmount: string;
   onZecChange: (v: string) => void;
   onNext: () => void;
+  prices: ZecPrice;
 }) {
   const user = offer.user;
   const displayName = user?.display_name ?? "Unknown";
   const currency = getCurrencyFromMethods(offer.payment_methods);
-  const basePrice = getBasePrice(currency);
+  const basePrice = getBasePrice(currency, prices);
   const effectiveRate = basePrice * (1 + offer.premium_discount / 100);
   const currencySymbol = getCurrencySymbol(currency);
 
@@ -381,16 +385,18 @@ function StepTradeSummary({
   offer,
   selectedMethod,
   zecAmount,
+  prices,
 }: {
   offer: Offer;
   selectedMethod: string;
   zecAmount: string;
+  prices: ZecPrice;
 }) {
   const user = offer.user;
   const displayName = user?.display_name ?? "Unknown";
   const discordUsername = user?.discord_username ?? displayName;
   const currency = getCurrencyFromMethods(offer.payment_methods);
-  const basePrice = getBasePrice(currency);
+  const basePrice = getBasePrice(currency, prices);
   const effectiveRate = basePrice * (1 + offer.premium_discount / 100);
   const currencySymbol = getCurrencySymbol(currency);
 
@@ -517,6 +523,14 @@ export default function TradePage({
   const [step, setStep] = useState(1);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [zecAmount, setZecAmount] = useState("");
+  const [prices, setPrices] = useState<ZecPrice>(mockPrice);
+
+  useEffect(() => {
+    fetch("/api/price")
+      .then((r) => r.json())
+      .then((data) => { if (data.usd) setPrices(data); })
+      .catch(() => {});
+  }, []);
 
   const offer = useMemo(
     () => mockOffers.find((o) => o.id === id) ?? null,
@@ -589,6 +603,7 @@ export default function TradePage({
           selectedMethod={selectedMethod}
           onSelect={setSelectedMethod}
           onNext={() => setStep(2)}
+          prices={prices}
         />
       )}
       {step === 2 && selectedMethod && (
@@ -598,6 +613,7 @@ export default function TradePage({
           zecAmount={zecAmount}
           onZecChange={setZecAmount}
           onNext={() => setStep(3)}
+          prices={prices}
         />
       )}
       {step === 3 && selectedMethod && (
@@ -605,6 +621,7 @@ export default function TradePage({
           offer={offer}
           selectedMethod={selectedMethod}
           zecAmount={zecAmount}
+          prices={prices}
         />
       )}
     </div>
