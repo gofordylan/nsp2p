@@ -361,18 +361,18 @@ function StepSetRate({
         </span>
 
         {/* Fixed-position +/- with centered number */}
-        <div className="flex items-center justify-center w-full">
+        <div className="flex items-center justify-between w-full px-4">
           <button
             onClick={() =>
               onPremiumChange(Math.round((premium - 0.5) * 10) / 10)
             }
-            className="w-13 h-13 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95 flex-shrink-0"
+            className="w-12 h-12 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95 flex-shrink-0"
             aria-label="Decrease premium"
           >
             <MinusIcon className="w-5 h-5 text-[#1A1A1A]" />
           </button>
 
-          <span className="text-6xl font-bold text-[#1A1A1A] tabular-nums w-[180px] text-center flex-shrink-0">
+          <span className="text-5xl font-bold text-[#1A1A1A] tabular-nums text-center">
             {sign}{premium}%
           </span>
 
@@ -380,7 +380,7 @@ function StepSetRate({
             onClick={() =>
               onPremiumChange(Math.round((premium + 0.5) * 10) / 10)
             }
-            className="w-13 h-13 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95 flex-shrink-0"
+            className="w-12 h-12 rounded-full border-2 border-[#E8E5E0] flex items-center justify-center hover:bg-[#EEECEA] transition-colors active:scale-95 flex-shrink-0"
             aria-label="Increase premium"
           >
             <PlusIcon className="w-5 h-5 text-[#1A1A1A]" />
