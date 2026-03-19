@@ -1,22 +1,75 @@
-import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getZecPrice } from "@/lib/price";
 import { mockPrice } from "@/lib/mock-data";
 
 const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === "true";
 
-export default function Home() {
-  const signInHref = isDevMode ? "#" : "/api/auth/signin/network-school";
+export const dynamic = "force-dynamic";
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}) {
+  const params = await searchParams;
+  const destination = params.dest;
+
+  // If user is signed in and trying to go somewhere, redirect them
+  const session = await auth();
+  if (session?.user && destination) {
+    redirect(destination);
+  }
+
+  // Fetch live price (fall back to mock)
+  let price = mockPrice;
+  try {
+    if (!isDevMode) {
+      price = await getZecPrice();
+    }
+  } catch {
+    // use mock price as fallback
+  }
+
+  const signInBrowse = isDevMode
+    ? "/offers"
+    : `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/offers")}`;
+  const signInCreate = isDevMode
+    ? "/create"
+    : `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/create")}`;
+  const signInHref = isDevMode
+    ? "#"
+    : "/api/auth/signin/network-school";
+
+  // If already signed in, link directly
+  const browseHref = session?.user ? "/offers" : signInBrowse;
+  const createHref = session?.user ? "/create" : signInCreate;
 
   return (
     <div className="flex flex-col min-h-dvh px-6">
       {/* Nav */}
       <nav className="flex items-center justify-between py-4">
         <span className="text-lg font-bold tracking-tight">nsp2p</span>
-        <Link
-          href={signInHref}
-          className="rounded-full border border-[#E8E5E0] px-4 py-1.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
-        >
-          Sign in
-        </Link>
+        {session?.user ? (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[#999999]">
+              {session.user.name}
+            </span>
+            <a
+              href="/offers"
+              className="rounded-full bg-[#EEECEA] px-4 py-1.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#E0DDD7] transition-colors"
+            >
+              Enter
+            </a>
+          </div>
+        ) : (
+          <a
+            href={signInHref}
+            className="rounded-full border border-[#E8E5E0] px-4 py-1.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
+          >
+            Sign in
+          </a>
+        )}
       </nav>
 
       {/* Hero */}
@@ -25,7 +78,8 @@ export default function Home() {
           Buy &amp; sell ZEC at Network School.
         </h1>
         <p className="mt-3 text-sm text-[#999999] max-w-[280px] leading-relaxed">
-          Peer-to-peer Zcash trading for the NS community. Fast, simple, trust-based.
+          Peer-to-peer Zcash trading for the NS community. Fast, simple,
+          trust-based.
         </p>
 
         {/* Steps */}
@@ -52,18 +106,18 @@ export default function Home() {
 
         {/* CTAs */}
         <div className="mt-8 flex w-full max-w-[280px] flex-col gap-3">
-          <Link
-            href="/offers"
+          <a
+            href={browseHref}
             className="flex h-12 items-center justify-center rounded-full bg-[#1A1A1A] text-sm font-medium text-white hover:bg-[#333333] transition-colors"
           >
             Browse Offers
-          </Link>
-          <Link
-            href="/create"
+          </a>
+          <a
+            href={createHref}
             className="flex h-12 items-center justify-center rounded-full border border-[#E8E5E0] text-sm font-medium text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
           >
             Create Offer
-          </Link>
+          </a>
         </div>
       </main>
 
@@ -71,29 +125,20 @@ export default function Home() {
       <footer className="flex flex-col items-center gap-2 pb-8 pt-6">
         <p className="text-sm font-medium text-[#1A1A1A]">
           ZEC{" "}
-          <span className="text-[#34A853]">
-            ${mockPrice.usd.toFixed(2)}
-          </span>
+          <span className="text-[#34A853]">${price.usd.toFixed(2)}</span>
         </p>
-        <div className="flex items-center gap-1.5 text-xs text-[#999999]">
+        <p className="text-xs text-[#999999]">
+          Need a wallet?{" "}
           <a
             href="https://zecwallet.co"
             target="_blank"
             rel="noopener noreferrer"
             className="underline decoration-[#E8E5E0] underline-offset-2 hover:text-[#1A1A1A] transition-colors"
           >
-            Zodl Wallet
+            Download Zodl
           </a>
-          <span>·</span>
-          <a
-            href="https://nsauth.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline decoration-[#E8E5E0] underline-offset-2 hover:text-[#1A1A1A] transition-colors"
-          >
-            nsauth.org
-          </a>
-        </div>
+          .
+        </p>
       </footer>
     </div>
   );

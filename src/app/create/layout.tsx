@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === "true";
 
-export default async function OffersLayout({
+export default async function CreateLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ export default async function OffersLayout({
     const session = await auth();
     if (!session?.user) {
       redirect(
-        `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/offers")}`
+        `/api/auth/signin/network-school?callbackUrl=${encodeURIComponent("/create")}`
       );
     }
   }
