@@ -506,23 +506,20 @@ function StepTradeSummary({
               `• Payment: ${selectedMethod}\n` +
               `\nLet me know when you're ready!`;
 
-            navigator.clipboard.writeText(tradeMsg).then(() => {
-              if (user?.discord_id) {
+            navigator.clipboard.writeText(tradeMsg).catch(() => {});
+            // Open Discord DM - try discord:// protocol first for app, fall back to web
+            if (user?.discord_id) {
+              window.location.href = `discord://discord.com/users/${user.discord_id}`;
+              // If the app doesn't open after a short delay, fall back to web
+              setTimeout(() => {
                 window.open(
                   `https://discord.com/users/${user.discord_id}`,
                   "_blank"
                 );
-              } else {
-                alert("Trade details copied to clipboard! Open Discord and message " + discordUsername);
-              }
-            }).catch(() => {
-              if (user?.discord_id) {
-                window.open(
-                  `https://discord.com/users/${user.discord_id}`,
-                  "_blank"
-                );
-              }
-            });
+              }, 500);
+            } else {
+              alert("Trade details copied to clipboard! Open Discord and message " + discordUsername);
+            }
           }}
           className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl bg-[#5865F2] text-white text-base font-semibold hover:opacity-90 active:scale-[0.98] transition-all duration-200"
         >
