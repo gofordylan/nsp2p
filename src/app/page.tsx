@@ -39,26 +39,8 @@ export default async function Home({
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4">
         <span className="text-[18px] font-bold tracking-[-0.02em] text-[#1A1A1A]">NSP2P<span className="text-[#FFA715] text-[28px] leading-[0] pointer-events-none">.</span></span>
-        {session?.user ? (
+        {session?.user && (
           <UserMenu image={session.user.image} name={session.user.name} />
-        ) : (
-          <a
-            href={signInUrl}
-            className="flex items-center gap-2 rounded-full bg-[#EEECEA] px-4 py-2 text-[13px] font-medium text-[#1A1A1A] hover:bg-[#E0DDD7] transition-colors cursor-pointer"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            Sign in
-          </a>
         )}
       </nav>
 
