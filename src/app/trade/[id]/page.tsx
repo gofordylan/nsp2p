@@ -508,16 +508,11 @@ function StepTradeSummary({
 
             navigator.clipboard.writeText(tradeMsg).catch(() => {});
             if (user?.discord_id) {
-              window.open(
-                `https://discord.com/users/${user.discord_id}`,
-                "_blank"
-              );
+              window.open(`https://discord.com/users/${user.discord_id}`, "_blank");
             } else {
-              // Search for user by username on Discord
-              window.open(
-                `https://discord.com/channels/@me`,
-                "_blank"
-              );
+              // No discord_id stored — open Discord search with username
+              window.open(`https://discord.com/channels/@me`, "_blank");
+              alert(`Trade details copied! Search for "${discordUsername}" in Discord and paste the message.`);
             }
           }}
           className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl bg-[#5865F2] text-white text-base font-semibold hover:opacity-90 active:scale-[0.98] transition-all duration-200"

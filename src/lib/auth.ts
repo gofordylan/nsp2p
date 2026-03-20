@@ -3,8 +3,13 @@ import { getServiceSupabase } from "./supabase";
 
 function parseDiscordIdFromAvatarUrl(url: string | null): string | null {
   if (!url) return null;
-  const match = url.match(/\/avatars\/(\d+)\//);
-  return match ? match[1] : null;
+  // Custom avatar: https://cdn.discordapp.com/avatars/{id}/{hash}.png
+  const avatarMatch = url.match(/\/avatars\/(\d+)\//);
+  if (avatarMatch) return avatarMatch[1];
+  // Guild avatar: https://cdn.discordapp.com/guilds/{guild}/users/{id}/avatars/{hash}.png
+  const guildMatch = url.match(/\/users\/(\d+)\/avatars\//);
+  if (guildMatch) return guildMatch[1];
+  return null;
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
