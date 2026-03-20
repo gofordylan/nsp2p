@@ -46,7 +46,7 @@ const SORT_OPTIONS: { value: SortOrder; label: string }[] = [
 export default function OffersPage() {
   const [allOffers, setAllOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<OfferFilter>("sell");
+  const [filter, setFilter] = useState<OfferFilter>("buy");
   const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
   const [showMethodDropdown, setShowMethodDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -191,16 +191,6 @@ export default function OffersPage() {
         {/* Buy/Sell toggle */}
         <div className="flex rounded-[10px] bg-[#EEECEA] p-[3px]">
           <button
-            onClick={() => setFilter("sell")}
-            className={`rounded-[8px] px-3.5 py-[10px] text-[12px] font-semibold transition-colors ${
-              filter === "sell"
-                ? "bg-[#1A1A1A] text-white"
-                : "text-[#999999]"
-            }`}
-          >
-            Sellers
-          </button>
-          <button
             onClick={() => setFilter("buy")}
             className={`rounded-[8px] px-3.5 py-[10px] text-[12px] font-semibold transition-colors ${
               filter === "buy"
@@ -209,6 +199,16 @@ export default function OffersPage() {
             }`}
           >
             Buyers
+          </button>
+          <button
+            onClick={() => setFilter("sell")}
+            className={`rounded-[8px] px-3.5 py-[10px] text-[12px] font-semibold transition-colors ${
+              filter === "sell"
+                ? "bg-[#1A1A1A] text-white"
+                : "text-[#999999]"
+            }`}
+          >
+            Sellers
           </button>
         </div>
 
