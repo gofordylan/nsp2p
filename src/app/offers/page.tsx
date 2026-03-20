@@ -198,7 +198,7 @@ export default function OffersPage() {
                 : "text-[#999999]"
             }`}
           >
-            Buy ZEC
+            Sellers
           </button>
           <button
             onClick={() => setFilter("buy")}
@@ -208,7 +208,7 @@ export default function OffersPage() {
                 : "text-[#999999]"
             }`}
           >
-            Sell ZEC
+            Buyers
           </button>
         </div>
 
