@@ -498,12 +498,31 @@ function StepTradeSummary({
       <div className="px-4 pb-6 pt-4">
         <button
           onClick={() => {
-            if (user?.discord_id) {
-              window.open(
-                `https://discord.com/users/${user.discord_id}`,
-                "_blank"
-              );
-            }
+            const tradeMsg = `Hey ${displayName}! I'd like to trade via nsp2p.\n\n` +
+              `📋 Trade Details:\n` +
+              `• Amount: ${zecNum} ZEC\n` +
+              `• You pay: ${currencySymbol}${fiatTotal.toFixed(2)} ${currency}\n` +
+              `• Rate: ${currencySymbol}${effectiveRate.toFixed(2)}/ZEC (${offer.premium_discount >= 0 ? '+' : ''}${offer.premium_discount}%)\n` +
+              `• Payment: ${selectedMethod}\n` +
+              `\nLet me know when you're ready!`;
+
+            navigator.clipboard.writeText(tradeMsg).then(() => {
+              if (user?.discord_id) {
+                window.open(
+                  `https://discord.com/users/${user.discord_id}`,
+                  "_blank"
+                );
+              } else {
+                alert("Trade details copied to clipboard! Open Discord and message " + discordUsername);
+              }
+            }).catch(() => {
+              if (user?.discord_id) {
+                window.open(
+                  `https://discord.com/users/${user.discord_id}`,
+                  "_blank"
+                );
+              }
+            });
           }}
           className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl bg-[#5865F2] text-white text-base font-semibold hover:opacity-90 active:scale-[0.98] transition-all duration-200"
         >
@@ -511,7 +530,7 @@ function StepTradeSummary({
           Message {discordUsername} on Discord
         </button>
         <p className="mt-3 text-center text-xs text-[#999999]">
-          Coordinate the trade details directly with {displayName}
+          Opens Discord profile · trade details copied to clipboard
         </p>
       </div>
     </div>
