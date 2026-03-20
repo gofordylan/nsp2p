@@ -22,29 +22,8 @@ export function UserMenu({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  async function handleLogout() {
-    // Fetch CSRF token from signout page, then POST to sign out
-    const res = await fetch("/api/auth/signout", { method: "GET" });
-    const html = await res.text();
-    const match = html.match(/name="csrfToken" value="([^"]+)"/);
-    const csrfToken = match?.[1] || "";
-
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "/api/auth/signout";
-
-    const csrfInput = document.createElement("input");
-    csrfInput.type = "hidden";
-    csrfInput.name = "csrfToken";
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
-
-    document.body.appendChild(form);
-    form.submit();
-  }
-
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative z-50">
       <button onClick={() => setOpen(!open)} className="cursor-pointer">
         {image ? (
           <img
@@ -67,12 +46,12 @@ export function UserMenu({
           >
             My Offers
           </a>
-          <button
-            onClick={handleLogout}
-            className="w-full text-left px-4 py-3 text-[13px] font-medium text-[#E53935] hover:bg-[#EEECEA] transition-colors cursor-pointer border-t border-[#E8E5E0]"
+          <a
+            href="/api/signout"
+            className="block px-4 py-3 text-[13px] font-medium text-[#E53935] hover:bg-[#EEECEA] transition-colors border-t border-[#E8E5E0]"
           >
             Log out
-          </button>
+          </a>
         </div>
       )}
     </div>
