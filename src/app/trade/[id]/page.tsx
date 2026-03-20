@@ -504,7 +504,7 @@ function StepTradeSummary({
               `• You pay: ${currencySymbol}${fiatTotal.toFixed(2)} ${currency}\n` +
               `• Rate: ${currencySymbol}${effectiveRate.toFixed(2)}/ZEC (${offer.premium_discount >= 0 ? '+' : ''}${offer.premium_discount}%)\n` +
               `• Payment: ${selectedMethod}\n` +
-              `\nLet me know when you're ready!`;
+              `\nLet me know if this works for you!`;
 
             navigator.clipboard.writeText(tradeMsg).catch(() => {});
             if (user?.discord_id) {
