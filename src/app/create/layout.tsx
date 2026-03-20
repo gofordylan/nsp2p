@@ -11,7 +11,7 @@ export default async function CreateLayout({
   if (!isDevMode) {
     const session = await auth();
     if (!session?.user) {
-      redirect("/?dest=/create");
+      redirect("/api/signin?callbackUrl=/create");
     }
   }
   return <>{children}</>;
