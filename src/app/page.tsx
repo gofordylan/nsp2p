@@ -38,7 +38,7 @@ export default async function Home({
     <div className="flex flex-col min-h-dvh">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4">
-        <span className="text-[18px] font-bold tracking-[-0.02em] text-[#1A1A1A]">NSP2P<span className="text-[#FFA715] text-[28px]" style={{lineHeight: 0}}>.</span></span>
+        <span className="text-[18px] font-bold tracking-[-0.02em] text-[#1A1A1A]">NSP2P<span className="text-[#FFA715] text-[28px] leading-[0] pointer-events-none">.</span></span>
         {session?.user ? (
           <UserMenu image={session.user.image} name={session.user.name} />
         ) : (
