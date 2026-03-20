@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { mockOffers, mockPrice } from "@/lib/mock-data";
+import { mockPrice } from "@/lib/mock-data";
 import type { Offer, ZecPrice } from "@/types";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────────
@@ -153,9 +153,13 @@ function StepSelectPayment({
     <div className="flex flex-col flex-1">
       {/* Seller info bar */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-[#E8E5E0]">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEECEA] text-sm font-semibold text-[#1A1A1A]">
-          {initial}
-        </div>
+        {user?.avatar_url ? (
+          <img src={user.avatar_url} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+        ) : (
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEECEA] text-sm font-semibold text-[#1A1A1A]">
+            {initial}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-[#1A1A1A] truncate">
@@ -185,7 +189,7 @@ function StepSelectPayment({
       {/* Content */}
       <div className="flex flex-col flex-1 px-4 py-6">
         <h2 className="text-xl font-bold text-[#1A1A1A]">
-          How do you want to pay?
+          {offer.type === "buy" ? "How do you want to get paid?" : "How do you want to pay?"}
         </h2>
         <p className="mt-1 text-sm text-[#999999]">
           Choose from {displayName}&apos;s accepted payment methods.
@@ -193,9 +197,12 @@ function StepSelectPayment({
 
         {/* Payment method cards */}
         <div className="mt-6 flex flex-col gap-3">
-          {services.map((method) => {
+          {offer.payment_methods.map((method) => {
             const isSelected = selectedMethod === method;
-            const methodInitial = method.charAt(0).toUpperCase();
+            const isCurrencyMethod = isCurrency(method);
+            const label = isCurrencyMethod ? `Cash (${method})` : method;
+            const subtitle = isCurrencyMethod ? `Pay in ${method} cash` : `Pay in ${currency}`;
+            const methodInitial = isCurrencyMethod ? "$" : method.charAt(0).toUpperCase();
 
             return (
               <button
@@ -218,9 +225,9 @@ function StepSelectPayment({
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-[#1A1A1A]">
-                    {method}
+                    {label}
                   </p>
-                  <p className="text-xs text-[#999999]">Pay in {currency}</p>
+                  <p className="text-xs text-[#999999]">{subtitle}</p>
                 </div>
               </button>
             );
@@ -524,26 +531,34 @@ export default function TradePage({
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [zecAmount, setZecAmount] = useState("");
   const [prices, setPrices] = useState<ZecPrice>(mockPrice);
+  const [offer, setOffer] = useState<Offer | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/price")
       .then((r) => r.json())
       .then((data) => { if (data.usd) setPrices(data); })
       .catch(() => {});
-  }, []);
 
-  const offer = useMemo(
-    () => mockOffers.find((o) => o.id === id) ?? null,
-    [id]
-  );
+    fetch(`/api/offers?id=${id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const found = data.find((o: Offer) => o.id === id) ?? null;
+          setOffer(found);
+          if (found?.min_zec) setZecAmount(String(found.min_zec));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  // Initialize zecAmount to offer's min_zec when offer loads
-  const initializedRef = React.useRef(false);
-  if (offer && !initializedRef.current) {
-    initializedRef.current = true;
-    if (offer.min_zec !== null) {
-      setZecAmount(String(offer.min_zec));
-    }
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-dvh items-center justify-center">
+        <p className="text-sm text-[#999999]">Loading...</p>
+      </div>
+    );
   }
 
   if (!offer) {

@@ -62,7 +62,7 @@ export function UserMenu({
       {open && (
         <div className="absolute right-0 top-10 w-40 bg-white border border-[#E8E5E0] rounded-xl shadow-sm overflow-hidden z-50">
           <a
-            href="/offers"
+            href="/my-offers"
             className="block px-4 py-3 text-[13px] font-medium text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
           >
             My Offers

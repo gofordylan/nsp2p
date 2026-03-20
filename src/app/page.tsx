@@ -41,7 +41,7 @@ export default async function Home({
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4">
         <span className="text-[18px] font-bold tracking-[-0.02em] text-[#1A1A1A]">
-          NSP2P
+          NSP2P<span className="text-[#FFA715] text-[36px]">.</span>
         </span>
         {session?.user ? (
           <UserMenu image={session.user.image} name={session.user.name} />
@@ -69,11 +69,11 @@ export default async function Home({
       </nav>
 
       {/* Hero — left aligned, matching Paper */}
-      <main className="flex flex-1 flex-col justify-center px-6">
-        <h1 className="text-[36px] font-extrabold leading-[40px] tracking-[-0.03em] text-[#1A1A1A]">
-          Buy &amp; sell ZEC at Network School
+      <main className="flex flex-1 flex-col justify-center px-6 -mt-16">
+        <h1 className="text-[42px] font-extrabold leading-[46px] tracking-[-0.03em] text-[#1A1A1A]">
+          Buy &amp; sell <span className="text-[#FFA715]">ZEC</span> at Network School
         </h1>
-        <p className="mt-3 text-[14px] text-[#999999] leading-[22px]">
+        <p className="mt-3 text-[14px] text-[#999999] leading-[22px] text-center w-full">
           Peer-to-peer trades with people you trust.
         </p>
 

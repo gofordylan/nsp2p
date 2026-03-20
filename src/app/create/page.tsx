@@ -421,6 +421,8 @@ function StepZecRange({
   onMaxChange: (v: string) => void;
 }) {
   const effectivePrice = marketPrice * (1 + premium / 100);
+  const sign = premium >= 0 ? "+" : "";
+  const rateLabel = `$${marketPrice.toFixed(2)} ${sign} ${premium}%`;
 
   const minUsd = minZec ? (parseFloat(minZec) * effectivePrice).toFixed(2) : "0.00";
   const maxUsd = maxZec ? (parseFloat(maxZec) * effectivePrice).toFixed(2) : "0.00";
@@ -449,7 +451,7 @@ function StepZecRange({
               ZEC
             </span>
           </div>
-          <p className="text-sm text-[#D4A017]">&asymp; ${minUsd} USD</p>
+          <p className="text-sm text-[#D4A017]">&asymp; ${minUsd} USD <span className="text-[#BBBBBB]">({rateLabel})</span></p>
         </div>
 
         {/* Max input */}
@@ -471,7 +473,7 @@ function StepZecRange({
               ZEC
             </span>
           </div>
-          <p className="text-sm text-[#D4A017]">&asymp; ${maxUsd} USD</p>
+          <p className="text-sm text-[#D4A017]">&asymp; ${maxUsd} USD <span className="text-[#BBBBBB]">({rateLabel})</span></p>
         </div>
       </div>
     </div>
@@ -520,7 +522,7 @@ function StepPaymentMethods({
         {/* Currencies */}
         <div className="flex flex-col gap-3">
           <span className="text-xs font-semibold tracking-widest text-[#999999] uppercase">
-            Currencies
+            Cash
           </span>
           <div className="flex flex-wrap gap-2">
             {CURRENCIES.map((currency) => {
@@ -548,7 +550,7 @@ function StepPaymentMethods({
 
 // ─── Step 5: Review & Publish ───────────────────────────────────────────────────
 
-function OfferPreviewCard({ offer, marketPrice }: { offer: OfferState; marketPrice: number }) {
+function OfferPreviewCard({ offer, marketPrice, userName, userImage }: { offer: OfferState; marketPrice: number; userName: string; userImage: string | null }) {
   const effectivePrice = marketPrice * (1 + offer.premium / 100);
   const sign = offer.premium >= 0 ? "+" : "";
   const minZec = parseFloat(offer.minZec) || 0;
@@ -566,44 +568,44 @@ function OfferPreviewCard({ offer, marketPrice }: { offer: OfferState; marketPri
     <div className="w-full rounded-2xl border border-[#E8E5E0] bg-white p-5">
       <div className="flex items-start gap-3">
         {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-[#EEECEA] flex items-center justify-center shrink-0">
-          <span className="text-sm font-semibold text-[#1A1A1A]">
-            {mockCurrentUser.display_name.charAt(0).toUpperCase()}
-          </span>
-        </div>
+        {userImage ? (
+          <img src={userImage} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-[#EEECEA] flex items-center justify-center shrink-0">
+            <span className="text-sm font-semibold text-[#1A1A1A]">
+              {userName.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2 flex-1 min-w-0">
-          {/* Name and badge */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-[#1A1A1A]">
-              {mockCurrentUser.display_name}
-            </span>
-            <span
-              className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${
-                offer.type === "sell"
-                  ? "bg-[#EEECEA] text-[#1A1A1A]"
-                  : "bg-[#34A853]/10 text-[#34A853]"
-              }`}
-            >
-              {offer.type === "sell" ? "Selling" : "Buying"}
-            </span>
-          </div>
-
-          {/* Rate */}
-          <div className="flex items-baseline gap-2">
+          {/* Name, badge, and rate */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-[#1A1A1A]">
+                {userName}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${
+                  offer.type === "sell"
+                    ? "bg-[#EEECEA] text-[#1A1A1A]"
+                    : "bg-[#34A853]/10 text-[#34A853]"
+                }`}
+              >
+                {offer.type === "sell" ? "Selling" : "Buying"}
+              </span>
+            </div>
             <span className="text-lg font-bold text-[#1A1A1A]">
-              {sign}
-              {offer.premium}%
-            </span>
-            <span className="text-sm text-[#D4A017]">
-              ${effectivePrice.toFixed(2)}/ZEC
+              {sign}{offer.premium}%
             </span>
           </div>
 
-          {/* Range */}
-          <p className="text-sm text-[#999999]">
-            {minZec} &ndash; {maxZec} ZEC
-          </p>
+          {/* Range — only if specified */}
+          {(offer.minZec !== "" || offer.maxZec !== "") && (
+            <p className="text-sm text-[#999999]">
+              {minZec} &ndash; {maxZec} ZEC
+            </p>
+          )}
 
           {/* Methods */}
           <div className="flex flex-wrap gap-1.5">
@@ -630,11 +632,13 @@ function OfferPreviewCard({ offer, marketPrice }: { offer: OfferState; marketPri
   );
 }
 
-function StepReview({ offer, marketPrice }: { offer: OfferState; marketPrice: number }) {
+function StepReview({ offer, marketPrice, userName, userImage }: { offer: OfferState; marketPrice: number; userName: string; userImage: string | null }) {
   const effectivePrice = marketPrice * (1 + offer.premium / 100);
   const sign = offer.premium >= 0 ? "+" : "";
   const minZec = parseFloat(offer.minZec) || 0;
   const maxZec = parseFloat(offer.maxZec) || 0;
+
+  const hasRange = offer.minZec !== "" || offer.maxZec !== "";
 
   const summaryRows = [
     {
@@ -643,12 +647,16 @@ function StepReview({ offer, marketPrice }: { offer: OfferState; marketPrice: nu
     },
     {
       label: "Rate",
-      value: `${sign}${offer.premium}% ($${effectivePrice.toFixed(2)}/ZEC)`,
+      value: `${sign}${offer.premium}%`,
     },
-    {
-      label: "Range",
-      value: `${minZec} \u2013 ${maxZec} ZEC`,
-    },
+    ...(hasRange
+      ? [
+          {
+            label: "Range",
+            value: `${minZec} \u2013 ${maxZec} ZEC`,
+          },
+        ]
+      : []),
     {
       label: "Accepts",
       value: offer.paymentMethods.join(", "),
@@ -661,7 +669,7 @@ function StepReview({ offer, marketPrice }: { offer: OfferState; marketPrice: nu
 
       <div className="flex flex-col gap-6 w-full max-w-sm">
         {/* Preview card */}
-        <OfferPreviewCard offer={offer} marketPrice={marketPrice} />
+        <OfferPreviewCard offer={offer} marketPrice={marketPrice} userName={userName} userImage={userImage} />
 
         {/* Summary table */}
         <div className="rounded-xl border border-[#E8E5E0] bg-white divide-y divide-[#E8E5E0] overflow-hidden">
@@ -685,15 +693,24 @@ export default function CreateOfferPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [marketPrice, setMarketPrice] = useState(38.42);
+  const [userName, setUserName] = useState("You");
+  const [userImage, setUserImage] = useState<string | null>(null);
   const [offer, setOffer] = useState<OfferState>({
     type: "sell",
-    premium: 2,
+    premium: 0,
     minZec: "",
     maxZec: "",
     paymentMethods: [],
   });
 
   useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.user?.name) setUserName(data.user.name);
+        if (data?.user?.image) setUserImage(data.user.image);
+      })
+      .catch(() => {});
     fetch("/api/price")
       .then((r) => r.json())
       .then((data) => { if (data.usd) setMarketPrice(data.usd); })
@@ -726,20 +743,29 @@ export default function CreateOfferPage() {
     }));
   }, []);
 
-  const handlePublish = useCallback(() => {
-    const publishData = {
-      user_id: mockCurrentUser.id,
-      type: offer.type,
-      premium_discount: offer.premium,
-      min_zec: parseFloat(offer.minZec) || null,
-      max_zec: parseFloat(offer.maxZec) || null,
-      payment_methods: offer.paymentMethods,
-      is_active: true,
-      effective_price_usd: effectivePrice,
-    };
-    console.log("Publishing offer:", publishData);
-    router.push("/offers");
-  }, [offer, effectivePrice, router]);
+  const handlePublish = useCallback(async () => {
+    try {
+      const res = await fetch("/api/offers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: offer.type,
+          premium_discount: offer.premium,
+          min_zec: offer.minZec ? parseFloat(offer.minZec) : null,
+          max_zec: offer.maxZec ? parseFloat(offer.maxZec) : null,
+          payment_methods: offer.paymentMethods,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Failed to publish offer");
+        return;
+      }
+      setStep(6);
+    } catch {
+      alert("Failed to publish offer. Please try again.");
+    }
+  }, [offer]);
 
   const canProceed = useMemo(() => {
     switch (step) {
@@ -750,13 +776,14 @@ export default function CreateOfferPage() {
       case 3: {
         const min = parseFloat(offer.minZec);
         const max = parseFloat(offer.maxZec);
-        return (
-          !isNaN(min) &&
-          !isNaN(max) &&
-          min > 0 &&
-          max > 0 &&
-          max >= min
-        );
+        // Both empty is fine (no range limit)
+        if (offer.minZec === "" && offer.maxZec === "") return true;
+        // If one is filled, both must be valid
+        if (offer.minZec !== "" && offer.maxZec !== "") {
+          return !isNaN(min) && !isNaN(max) && min > 0 && max > 0 && max >= min;
+        }
+        // One filled, one empty — allow it
+        return true;
       }
       case 4:
         return offer.paymentMethods.length > 0;
@@ -775,6 +802,46 @@ export default function CreateOfferPage() {
       handlePublish();
     }
   }, [step, canProceed, handlePublish]);
+
+  if (step === 6) {
+    return (
+      <div className="min-h-dvh flex flex-col bg-[#FAFAF8]">
+        <div className="flex flex-col flex-1 items-center justify-center px-6">
+          {/* Checkmark */}
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#34A853]">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <h1 className="mt-5 text-[24px] font-bold text-[#1A1A1A]">Offer Published!</h1>
+          <p className="mt-2 text-[14px] text-[#999999] text-center max-w-[280px] leading-[22px]">
+            Your offer is now live. Network School members can see it and message you on Discord to trade.
+          </p>
+
+          {/* Offer preview */}
+          <div className="mt-6 w-full max-w-sm">
+            <OfferPreviewCard offer={offer} marketPrice={marketPrice} userName={userName} userImage={userImage} />
+          </div>
+
+          {/* Actions */}
+          <div className="mt-6 flex w-full max-w-sm gap-3">
+            <a
+              href="/my-offers"
+              className="flex flex-1 h-[49px] items-center justify-center rounded-[10px] border-[1.5px] border-[#D0CCC6] text-[15px] font-semibold text-[#1A1A1A] hover:bg-[#EEECEA] transition-colors"
+            >
+              View My Offers
+            </a>
+            <a
+              href="/offers"
+              className="flex flex-1 h-[49px] items-center justify-center rounded-[10px] bg-[#1A1A1A] text-[15px] font-semibold text-white hover:bg-[#333333] transition-colors"
+            >
+              Browse Offers
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh flex flex-col bg-[#FAFAF8]">
@@ -824,7 +891,7 @@ export default function CreateOfferPage() {
               onToggle={handleTogglePayment}
             />
           )}
-          {step === 5 && <StepReview offer={offer} marketPrice={marketPrice} />}
+          {step === 5 && <StepReview offer={offer} marketPrice={marketPrice} userName={userName} userImage={userImage} />}
         </div>
 
         {/* Bottom CTA */}
